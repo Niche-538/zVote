@@ -6,7 +6,8 @@ import "hardhat/console.sol";
 
 contract MyContract {
 
-    uint [3][4][5] myArray;
+    uint[3][4][5] myArray;
+    uint256[5] encryptedVotes;
 
     function printArray() public view {
         for (uint256 i = 0; i < 5; i++) {
@@ -16,6 +17,11 @@ contract MyContract {
         }
     }
     
+    function printVotes() public view {
+        for (uint256 i = 0; i < 5; i++) {
+            console.log(encryptedVotes[i]);
+        }
+    }
 
     function fillArray() public returns(uint256[3][4][5] memory) {
         uint256 randomNum;
@@ -33,7 +39,6 @@ contract MyContract {
 
         if (x > 1) {
             uint256 temp = x - 1;
-
             while (temp > 0) {
                 temp >>= 1;
                 result += 1;
@@ -43,9 +48,25 @@ contract MyContract {
         return result;
     }
 
-    function encryptQuestion() public view returns(uint256) {
+    function generatePublicKey() public pure returns(uint256, uint256){
+        // uint256 p=151;
+        // uint256 q=173;
+        // uint256 n=p*q;
+        // uint256 g=1123581321;
+        uint256 p=47;
+        uint256 q=73;
+        uint256 n=p*q;
+        uint256 g=2213;
+        return (n, g);
+    }
+
+    function encryptQuestion() public returns(uint256[5] memory) {
         uint256 b = ceilLog2(5);
-        
+        uint256 n;
+        uint256 g;
+
+        (n, g) = generatePublicKey();
+
         for (uint256 i = 0; i < 5; i++) {
             uint256 questionsSum = 0;
             for (uint256 j = 0; j < 4; j++) {
@@ -55,19 +76,13 @@ contract MyContract {
                 }
                 questionsSum += optionsSum * (2 ** (j * b * 3)); //b * L * Questions
             }
-            console.log(questionsSum);
+            uint256 r = uint256(keccak256(abi.encodePacked(i, i + 10, block.timestamp))) % n;
+            encryptedVotes[i] = ((g ** questionsSum) * (r ** n)) % (n ** 2);
         }
 
-        return 1;
+        return encryptedVotes;
     }
 
-    function generatePublicKey() public returns(){
-        uint256 p=151;
-        uint256 q=173;
-        uint256 n=p*q;
-        uint256 g=1123581321;
-        
-    }
     function printNum(uint256 x) public view returns(uint256){
         console.log(x);
         return x;
