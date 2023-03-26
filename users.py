@@ -1,6 +1,6 @@
 import math
 import random
-import pallier
+import paillier
 import hashlib
 
 # A 3D array used to store the votes of a user
@@ -8,7 +8,7 @@ userVotes = [[[[0, 0, 0]] * 4] * 5][0]
 encryptedVotes = []
 
 # fetch public key from the paillier.py script
-publicKey = pallier.public_key
+publicKey = paillier.public_key
 
 # get n and g values from the public Key
 n, g = publicKey.n, publicKey.g
