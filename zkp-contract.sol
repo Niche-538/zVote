@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 
 pragma solidity >=0.7.0;
-import "hardhat/console.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
+// import "hardhat/console.sol";
 
 contract MyContract {
     uint256 c;
@@ -19,25 +18,90 @@ contract MyContract {
         num = 5;
     }
 
+    function log10(uint256 value) internal pure returns (uint256) {
+        uint256 result = 0;
+        unchecked {
+            if (value >= 10 ** 64) {
+                value /= 10 ** 64;
+                result += 64;
+            }
+            if (value >= 10 ** 32) {
+                value /= 10 ** 32;
+                result += 32;
+            }
+            if (value >= 10 ** 16) {
+                value /= 10 ** 16;
+                result += 16;
+            }
+            if (value >= 10 ** 8) {
+                value /= 10 ** 8;
+                result += 8;
+            }
+            if (value >= 10 ** 4) {
+                value /= 10 ** 4;
+                result += 4;
+            }
+            if (value >= 10 ** 2) {
+                value /= 10 ** 2;
+                result += 2;
+            }
+            if (value >= 10 ** 1) {
+                result += 1;
+            }
+        }
+        return result;
+    }
+
+    function toStringFunction(uint256 value) internal pure returns (string memory) {
+        bytes16 _SYMBOLS = "0123456789abcdef";
+        unchecked {
+            uint256 length = log10(value) + 1;
+            string memory buffer = new string(length);
+            uint256 ptr;
+            /// @solidity memory-safe-assembly
+            assembly {
+                ptr := add(buffer, add(32, length))
+            }
+            while (true) {
+                ptr--;
+                /// @solidity memory-safe-assembly
+                assembly {
+                    mstore8(ptr, byte(mod(value, 10), _SYMBOLS))
+                }
+                value /= 10;
+                if (value == 0) break;
+            }
+            return buffer;
+        }
+    }
+
+    function getNum() public view returns(uint256) {
+        return num;
+    }
+
+    function setNum(uint256 n) public {
+        num = n;
+    }
+
     function randomOracle() public {
-        string memory concatInput = Strings.toString(concatenate(c, g, n, V, uj));
+        string memory concatInput = toStringFunction(concatenate(c, g, n, V, uj));
         e = uint256(sha256(bytes(concatInput)));
     }
 
     function concatenate(uint256 a, uint256 b, uint256 d, uint256[5] memory arr1, uint256[5] memory arr2) public pure returns (uint256) {
-        string memory str1 = Strings.toString(a);
-        string memory str2 = Strings.toString(b);
-        string memory str3 = Strings.toString(d);
+        string memory str1 = toStringFunction(a);
+        string memory str2 = toStringFunction(b);
+        string memory str3 = toStringFunction(d);
         string memory str4 = "";
 
         for (uint i = 0; i < 5; i++) {
-            str4 = string(abi.encodePacked(str4, Strings.toString(arr1[i])));
+            str4 = string(abi.encodePacked(str4, toStringFunction(arr1[i])));
         }
 
         string memory str5 = "";
 
         for (uint i = 0; i < 5; i++) {
-            str5 = string(abi.encodePacked(str5, Strings.toString(arr2[i])));
+            str5 = string(abi.encodePacked(str5, toStringFunction(arr2[i])));
         }
 
         string memory str = string(abi.encodePacked(str5, str1, str2, str3, str4));
