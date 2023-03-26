@@ -2,90 +2,75 @@
 
 pragma solidity >=0.7.0;
 import "hardhat/console.sol";
-
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract MyContract {
+    uint256 c;
+    uint256 n = 7 * 11;
+    uint256 g = n + 1;
+    uint256 num;
+    uint256[5] V;
+    uint256[5] vj;
+    uint256[5] ej;
+    uint256[5] uj;
+    uint256 e;
 
-    uint[3][4][5] myArray;
-    uint256[5] encryptedVotes;
-
-    function printArray() public view {
-        for (uint256 i = 0; i < 5; i++) {
-            for (uint256 j = 0; j < 4; j++) {
-                console.log(myArray[i][j][0],myArray[i][j][1],myArray[i][j][2]);
-            }
-        }
-    }
-    
-    function printVotes() public view {
-        for (uint256 i = 0; i < 5; i++) {
-            console.log(encryptedVotes[i]);
-        }
+    constructor() public {
+        num = 5;
     }
 
-    function fillArray() public returns(uint256[3][4][5] memory) {
-        uint256 randomNum;
-        for (uint256 i = 0; i < 5; i++) {
-            for (uint256 j = 0; j < 4; j++) {
-                    randomNum = uint256(keccak256(abi.encodePacked(i, j, block.timestamp))) % 3; // Generate a random number between 0 and 1
-                    myArray[i][j][randomNum] = 1;
-            }
-        }
-        return myArray;
+    function randomOracle() public {
+        string memory concatInput = Strings.toString(concatenate(c, g, n, V, uj));
+        e = uint256(sha256(bytes(concatInput)));
     }
 
-    function ceilLog2(uint256 x) public pure returns (uint256) {
-        uint256 result = 0;
+    function concatenate(uint256 a, uint256 b, uint256 d, uint256[5] memory arr1, uint256[5] memory arr2) public pure returns (uint256) {
+        string memory str1 = Strings.toString(a);
+        string memory str2 = Strings.toString(b);
+        string memory str3 = Strings.toString(d);
+        string memory str4 = "";
 
-        if (x > 1) {
-            uint256 temp = x - 1;
-            while (temp > 0) {
-                temp >>= 1;
-                result += 1;
-            }
+        for (uint i = 0; i < 5; i++) {
+            str4 = string(abi.encodePacked(str4, Strings.toString(arr1[i])));
         }
 
-        return result;
+        string memory str5 = "";
+
+        for (uint i = 0; i < 5; i++) {
+            str5 = string(abi.encodePacked(str5, Strings.toString(arr2[i])));
+        }
+
+        string memory str = string(abi.encodePacked(str5, str1, str2, str3, str4));
+        return uint256(keccak256(abi.encodePacked(str)));
     }
 
-    function generatePublicKey() public pure returns(uint256, uint256){
-        // uint256 p=151;
-        // uint256 q=173;
-        // uint256 n=p*q;
-        // uint256 g=1123581321;
-        uint256 p=47;
-        uint256 q=73;
-        uint256 n=p*q;
-        uint256 g=2213;
-        return (n, g);
-    }
-
-    function encryptQuestion() public returns(uint256[5] memory) {
-        uint256 b = ceilLog2(5);
-        uint256 n;
-        uint256 g;
-
-        (n, g) = generatePublicKey();
+    function checkE() public view returns (bool) {
+        uint256 eSum = 0;
 
         for (uint256 i = 0; i < 5; i++) {
-            uint256 questionsSum = 0;
-            for (uint256 j = 0; j < 4; j++) {
-                uint256 optionsSum = 0;
-                for (uint256 k = 0; k < 3; k++) {
-                    optionsSum += myArray[i][j][k] * (2 ** (k * b)); //b * Options
-                }
-                questionsSum += optionsSum * (2 ** (j * b * 3)); //b * L * Questions
-            }
-            uint256 r = uint256(keccak256(abi.encodePacked(i, i + 10, block.timestamp))) % n;
-            encryptedVotes[i] = ((g ** questionsSum) * (r ** n)) % (n ** 2);
+            eSum += (ej[i] % n);
         }
 
-        return encryptedVotes;
+        if (eSum == e) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    function printNum(uint256 x) public view returns(uint256){
-        console.log(x);
-        return x;
+    function checkvj() public view returns (bool) {
+        for (uint256 i = 0; i < 5; i++) {
+            uint256 val = (uj[i] * ((c / (g ** V[i])) ** ej[i])) % (n ** 2);
+
+            if (val != vj[i]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
+    function checkInputValidity() public view returns (bool) {
+        return checkE() && checkvj();
+    }
 }
