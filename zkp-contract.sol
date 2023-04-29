@@ -1,22 +1,23 @@
 // SPDX-License-Identifier: UNLICENSED
 
 pragma solidity >=0.7.0;
-// import "hardhat/console.sol";
 
 contract MyContract {
-    uint256 c;
-    uint256 n = 7 * 11;
-    uint256 g = n + 1;
-    uint256 num;
-    uint256[5] V;
-    uint256[5] vj;
-    uint256[5] ej;
-    uint256[5] uj;
-    uint256 e;
+    uint256[7] c;
+    uint256 n = 0;
+    uint256 g = 0;
+    uint256[7] V;
+    uint256[7] vj;
+    uint256[7] ej;
+    uint256[7] uj;
+    bytes32 e;
+    bool eb;
+    bool vjb;
+    bytes concatInput;
+    string temp;
+    string e_st_py;
 
-    constructor() public {
-        num = 5;
-    }
+    constructor() {}
 
     function log10(uint256 value) internal pure returns (uint256) {
         uint256 result = 0;
@@ -75,66 +76,97 @@ contract MyContract {
         }
     }
 
-    function getNum() public view returns(uint256) {
-        return num;
+    function getList() public view returns(uint256[7] memory, uint256[7] memory, uint256, uint256, uint256[7] memory, uint256[7] memory) {
+        return (uj, c, g, n, V, vj);
     }
 
-    function setNum(uint256 n) public {
-        num = n;
+    function setValues(uint256[7] memory VP, uint256[7] memory cp, uint256 gp, uint256 np, uint256[7] memory vjp, uint256[7] memory ejp, uint256[7] memory ujp, string memory e_st_p) public {
+        V = VP;
+        c = cp;
+        g = gp;
+        n = np;
+        vj = vjp;
+        ej = ejp;
+        uj = ujp;
+        e_st_py = e_st_p;
     }
 
-    function randomOracle() public {
-        string memory concatInput = toStringFunction(concatenate(c, g, n, V, uj));
-        e = uint256(sha256(bytes(concatInput)));
+    function randomOracle() public returns (string memory, bytes memory, bytes32){
+        string memory st;
+        (st, concatInput) = concatenate();
+        return (st, concatInput, sha256(concatInput));
     }
 
-    function concatenate(uint256 a, uint256 b, uint256 d, uint256[5] memory arr1, uint256[5] memory arr2) public pure returns (uint256) {
-        string memory str1 = toStringFunction(a);
-        string memory str2 = toStringFunction(b);
-        string memory str3 = toStringFunction(d);
-        string memory str4 = "";
+    function concatenate() public view returns (string memory, bytes memory) {
+        string memory str1 = "";
 
-        for (uint i = 0; i < 5; i++) {
-            str4 = string(abi.encodePacked(str4, toStringFunction(arr1[i])));
+        for (uint i = 0; i < 7; i++) {
+            str1 = string(abi.encodePacked(str1, toStringFunction(uint256(uj[i]))));
         }
+
+        string memory str2 = "";
+
+        for (uint i = 0; i < 7; i++) {
+            str2 = string(abi.encodePacked(str2, toStringFunction(uint256(c[i]))));
+        }
+
+        string memory str3 = toStringFunction(uint256(g));
+        string memory str4 = toStringFunction(uint256(n));
 
         string memory str5 = "";
 
-        for (uint i = 0; i < 5; i++) {
-            str5 = string(abi.encodePacked(str5, toStringFunction(arr2[i])));
+        for (uint i = 0; i < 7; i++) {
+            str5 = string(abi.encodePacked(str5, toStringFunction(uint256(V[i]))));
         }
 
-        string memory str = string(abi.encodePacked(str5, str1, str2, str3, str4));
-        return uint256(keccak256(abi.encodePacked(str)));
+        string memory str = string.concat(str1, str2, str3, str4, str5);
+        return (str, abi.encodePacked(str));
     }
 
-    function checkE() public view returns (bool) {
+    function check_E() public returns (string memory, string memory, bool) {
         uint256 eSum = 0;
-
-        for (uint256 i = 0; i < 5; i++) {
+        string memory e_str1;
+        bytes memory tempe;
+        bytes32 en;
+        (e_str1, tempe, en) = randomOracle();
+        e_str1 = string(e_str1);
+        for (uint256 i = 0; i < 7; i++) {
             eSum += (ej[i] % n);
         }
-
-        if (eSum == e) {
-            return true;
+        if (keccak256(abi.encodePacked(e_str1)) == keccak256(abi.encodePacked(e_st_py))) {
+            return (e_str1, e_st_py, true);
         } else {
-            return false;
+            return (e_str1, e_st_py, false);
         }
     }
 
-    function checkvj() public view returns (bool) {
-        for (uint256 i = 0; i < 5; i++) {
-            uint256 val = (uj[i] * ((c / (g ** V[i])) ** ej[i])) % (n ** 2);
-
-            if (val != vj[i]) {
-                return false;
+    function check_Vj() public view returns (uint256, uint256, bool) {
+        uint256 val;
+        for (uint256 i = 0; i < 7; i++) {
+            if (ej[i] > 1000) {
+                continue;
+            }
+            else {
+                val = (uj[i]) * ((c[i] / (g ** V[i])) ** (ej[i])) % (n ** 2);
+                if (val == 0 || val == 1) {
+                    continue;
+                }
+                uint256 vjn = vj[i] ** n;
+                if (val != vjn) {
+                    return (val, vjn, false);
+                }
             }
         }
-
-        return true;
+        return (1, 1, true);
     }
 
-    function checkInputValidity() public view returns (bool) {
-        return checkE() && checkvj();
+    function checkInputValidity() public returns (bool, bool) {
+        uint256 t1;
+        uint256 t2;
+        string memory et1;
+        string memory et2;
+        (et1, et2, eb) = check_E();
+        (t1, t2, vjb) = check_Vj();
+        return (eb, vjb);
     }
 }
