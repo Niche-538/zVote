@@ -6,7 +6,7 @@ xi = []
 
 
 def create_user_list():
-    users = [i for i in range(7)]
+    users = [i for i in range(10)]
     global xi
     for i in range(len(users)):
         rand = str(random.randint(0, 100))

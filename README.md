@@ -7,3 +7,11 @@ This project is an implementation of the <a href="https://ieeexplore.ieee.org/do
 1. phe: Python Paillier encryption library.
 2. web3: Python web3 library.
 3. py-solc-x: Python wrapper tool for solc Solidity compiler.
+4. pymerkle: Python library for Merkle Tree
+
+# How to Run
+1. Install Ganache
+2. Create a workspace in the Ganache.
+3. In the ganacheconnector.py file ensure that the variable 'ganache_url' is equal to the 'RPC Server' value in your ganache workspace.
+4. In a command line terminal, ensure that you are in the project directory.
+5. Run 'python3 ganacheconnector.py' in the terminal.

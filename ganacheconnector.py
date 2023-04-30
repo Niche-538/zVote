@@ -1,6 +1,7 @@
 from users import valuesForSmartContract
 from web3 import Web3
 from solcx import install_solc, compile_source
+import time
 
 # installs the latest version of solc
 install_solc(version='latest')
@@ -31,8 +32,10 @@ tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
 
 zkp_contract = w3.eth.contract(address=tx_receipt.contractAddress, abi=abi)
 
-V, c, g, n, vj, ej, uj, e_st, piAuth = valuesForSmartContract()
-tx_hash = zkp_contract.functions.setValues(V, c, g, n, vj, ej, uj, e_st, piAuth).transact()
+V, c, g, n, vj, ej, uj, e_st, piAuth, nop = valuesForSmartContract()
+st = time.time()
+tx_hash = zkp_contract.functions.setValues(V, c, g, n, vj, ej, uj, e_st, piAuth, nop).transact()
 tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
 
 print('Check Validity: ', zkp_contract.functions.checkInputValidity().call())
+print(f'time: {time.time() - st}')

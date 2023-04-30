@@ -3,20 +3,21 @@
 pragma solidity >=0.7.0;
 
 contract MyContract {
-    uint256[7] c;
+    uint256[10] c;
     uint256 n = 0;
     uint256 g = 0;
-    uint256[7] V;
-    uint256[7] vj;
-    uint256[7] ej;
-    uint256[7] uj;
+    uint256[10] V;
+    uint256[10] vj;
+    uint256[10] ej;
+    uint256[10] uj;
     bytes32 e;
     bool eb;
     bool vjb;
     bytes concatInput;
     string temp;
     string e_st_py;
-    string[7] piAuthList;
+    string[10] piAuthList;
+    uint256 numUsers;
 
     constructor() {}
 
@@ -77,11 +78,11 @@ contract MyContract {
         }
     }
 
-    function getList() public view returns(uint256[7] memory, uint256[7] memory, uint256, uint256, uint256[7] memory, uint256[7] memory) {
-        return (uj, c, g, n, V, vj);
-    }
+//    function getList() public view returns(uint256[7] memory, uint256[7] memory, uint256, uint256, uint256[7] memory, uint256[7] memory) {
+//        return (uj, c, g, n, V, vj);
+//    }
 
-    function setValues(uint256[7] memory VP, uint256[7] memory cp, uint256 gp, uint256 np, uint256[7] memory vjp, uint256[7] memory ejp, uint256[7] memory ujp, string memory e_st_p, string[7] memory pi_Auth_p) public {
+    function setValues(uint256[10] memory VP, uint256[10] memory cp, uint256 gp, uint256 np, uint256[10] memory vjp, uint256[10] memory ejp, uint256[10] memory ujp, string memory e_st_p, string[10] memory pi_Auth_p, uint256 nop) public {
         V = VP;
         c = cp;
         g = gp;
@@ -91,6 +92,7 @@ contract MyContract {
         uj = ujp;
         e_st_py = e_st_p;
         piAuthList = pi_Auth_p;
+        numUsers = nop;
     }
 
     function randomOracle() public returns (string memory, bytes memory, bytes32){
@@ -102,13 +104,13 @@ contract MyContract {
     function concatenate() public view returns (string memory, bytes memory) {
         string memory str1 = "";
 
-        for (uint i = 0; i < 7; i++) {
+        for (uint i = 0; i < numUsers; i++) {
             str1 = string(abi.encodePacked(str1, toStringFunction(uint256(uj[i]))));
         }
 
         string memory str2 = "";
 
-        for (uint i = 0; i < 7; i++) {
+        for (uint i = 0; i < numUsers; i++) {
             str2 = string(abi.encodePacked(str2, toStringFunction(uint256(c[i]))));
         }
 
@@ -117,7 +119,7 @@ contract MyContract {
 
         string memory str5 = "";
 
-        for (uint i = 0; i < 7; i++) {
+        for (uint i = 0; i < numUsers; i++) {
             str5 = string(abi.encodePacked(str5, toStringFunction(uint256(V[i]))));
         }
 
@@ -132,7 +134,7 @@ contract MyContract {
         bytes32 en;
         (e_str1, tempe, en) = randomOracle();
         e_str1 = string(e_str1);
-        for (uint256 i = 0; i < 7; i++) {
+        for (uint256 i = 0; i < numUsers; i++) {
             eSum += (ej[i] % n);
         }
         if (keccak256(abi.encodePacked(e_str1)) == keccak256(abi.encodePacked(e_st_py))) {
@@ -144,7 +146,7 @@ contract MyContract {
 
     function check_Vj() public view returns (uint256, uint256, bool) {
         uint256 val;
-        for (uint256 i = 0; i < 7; i++) {
+        for (uint256 i = 0; i < numUsers; i++) {
             if (ej[i] > 1000) {
                 continue;
             }

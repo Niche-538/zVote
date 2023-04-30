@@ -13,7 +13,7 @@ uj = []
 c = []
 
 # get n and g values from the public Key
-number_of_users = 7
+number_of_users = 10
 n, g = 5, 3
 r = 1
 
@@ -118,7 +118,7 @@ def valuesForSmartContract():
     e_st, e = compute_E()
     ej, vj = compute_EI_VI(w, e, ej, vj)
     # print(f'Users.py List: V: {random_list},\nc: {c},\ng: {g},\nn: {n},\nvj: {vj},\nej: {ej},\nuj: {uj}')
-    return random_list, c, g, n, vj, ej, uj, e_st, piAuthList
+    return random_list, c, g, n, vj, ej, uj, e_st, piAuthList, number_of_users
 
 
 
