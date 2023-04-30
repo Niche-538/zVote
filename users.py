@@ -1,9 +1,10 @@
 import random
 import paillier
 import hashlib
+import zka
 
 # A 3D array used to store the votes of a user
-userVotes = [[[[0, 0, 0]] * 4] * 5][0]
+# userVotes = [[[[0, 0, 0]] * 4] * 7][0]
 encryptedVotes = []
 
 # fetch public key from the paillier.py script
@@ -12,14 +13,15 @@ uj = []
 c = []
 
 # get n and g values from the public Key
-# n, g = publicKey.n, publicKey.g
-
+number_of_users = 7
 n, g = 5, 3
 r = 1
 
 random_list = []
-for _ in range(7):
+piAuthList = []
+for i in range(number_of_users):
     random_list.append(random.randint(1, 5))
+    piAuthList.append(zka.submit_vote(i))
 
 message = random.sample(random_list, 1)[0]
 message_index = random_list.index(message)
@@ -116,4 +118,8 @@ def valuesForSmartContract():
     e_st, e = compute_E()
     ej, vj = compute_EI_VI(w, e, ej, vj)
     # print(f'Users.py List: V: {random_list},\nc: {c},\ng: {g},\nn: {n},\nvj: {vj},\nej: {ej},\nuj: {uj}')
-    return random_list, c, g, n, vj, ej, uj, e_st
+    return random_list, c, g, n, vj, ej, uj, e_st, piAuthList
+
+
+
+

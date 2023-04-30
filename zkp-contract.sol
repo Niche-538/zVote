@@ -16,6 +16,7 @@ contract MyContract {
     bytes concatInput;
     string temp;
     string e_st_py;
+    string[7] piAuthList;
 
     constructor() {}
 
@@ -80,7 +81,7 @@ contract MyContract {
         return (uj, c, g, n, V, vj);
     }
 
-    function setValues(uint256[7] memory VP, uint256[7] memory cp, uint256 gp, uint256 np, uint256[7] memory vjp, uint256[7] memory ejp, uint256[7] memory ujp, string memory e_st_p) public {
+    function setValues(uint256[7] memory VP, uint256[7] memory cp, uint256 gp, uint256 np, uint256[7] memory vjp, uint256[7] memory ejp, uint256[7] memory ujp, string memory e_st_p, string[7] memory pi_Auth_p) public {
         V = VP;
         c = cp;
         g = gp;
@@ -89,6 +90,7 @@ contract MyContract {
         ej = ejp;
         uj = ujp;
         e_st_py = e_st_p;
+        piAuthList = pi_Auth_p;
     }
 
     function randomOracle() public returns (string memory, bytes memory, bytes32){
@@ -148,9 +150,6 @@ contract MyContract {
             }
             else {
                 val = (uj[i]) * ((c[i] / (g ** V[i])) ** (ej[i])) % (n ** 2);
-                if (val == 0 || val == 1) {
-                    continue;
-                }
                 uint256 vjn = vj[i] ** n;
                 if (val != vjn) {
                     return (val, vjn, false);
@@ -160,13 +159,13 @@ contract MyContract {
         return (1, 1, true);
     }
 
-    function checkInputValidity() public returns (bool, bool) {
+    function checkInputValidity() public returns (bool, bool, bool) {
         uint256 t1;
         uint256 t2;
         string memory et1;
         string memory et2;
         (et1, et2, eb) = check_E();
         (t1, t2, vjb) = check_Vj();
-        return (eb, vjb);
+        return (eb, vjb, eb && vjb);
     }
 }
